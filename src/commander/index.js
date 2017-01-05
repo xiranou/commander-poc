@@ -1,6 +1,5 @@
-function run(payload) {
-  console.log('commander running: ');
-  console.log(payload);
+function run(permission, commandMeta) {
+  console.log('commander running...');
 }
 
 module.exports = {

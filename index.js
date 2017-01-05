@@ -3,7 +3,7 @@ const commander = require('./src/commander');
 
 events.on('deploy', commander.run);
 events.on('deploy', () => console.log('I\'m also subscribe to deploy!'));
-events.on('mookie', () => console.log('MOOOOKIE'));
+events.on('deploy', () => console.log('me three'), () => console.log('me four'));
 
 events.emit('deploy', {
   permission: {
@@ -20,4 +20,4 @@ events.emit('deploy', {
 
 events.emit('mookie', { name: 'mookie' });
 
-events.log();
+// events.log();

@@ -17,15 +17,15 @@ function emit(eventName, payload) {
   }
 }
 
-function on(eventName, handler) {
-  const handlers = addHandlers(eventName, handler);
-  subscriptions = subscriptions.set(eventName, handlers);
+function on(eventName, ...handlers) {
+  const merged = concatHandlers(eventName, handlers);
+  subscriptions = subscriptions.set(eventName, merged);
 }
 
-function addHandlers(eventName, handler) {
+function concatHandlers(eventName, handlers) {
   return Optional.ofNullable(subscriptions.get(eventName))
-  .map(currentHandlers => currentHandlers.push(handler))
-  .orElse(Immutable.List([handler]));
+  .map(currentHandlers => currentHandlers.concat(handlers))
+  .orElse(Immutable.List(handlers));
 }
 
 function getSubscriptions() {
