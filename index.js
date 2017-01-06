@@ -16,6 +16,5 @@ auth.fetchUserPermission(parsed.userID)
 .then(permission => {
   commander.run(parsed.command, permission)
   .then(successMessage => chat.sendMessage(successMessage))
-  .catch(error => chat.logError(error))
+  .catch(error => chat.logError(error));
 });
-
