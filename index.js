@@ -10,8 +10,4 @@ const slackPayload = {
   type: 'slack'
 };
 
-const Slack = {
-  sendMessage: message => console.log(`send this message to slack: ${message}`)
-}
-
-commander.run(slackPayload, Slack);
+commander.run(slackPayload);

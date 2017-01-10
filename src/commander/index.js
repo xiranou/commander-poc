@@ -1,15 +1,18 @@
 const parser = require('../parser');
 const auth = require('../auth');
+const chat = require('../chat');
 
-function run(payload, messenger) {
+function run(payload) {
   const { type: payloadType } = payload;
   const parsedPayload = parser[payloadType].parse(payload);
+  const { userID, roomID } = parsedPayload.toJS();
   const permission = auth.fetchUserPermissionByID(parsedPayload.userID);
   const runMeta = parsedPayload.merge(permission);
 
   commandHandler(runMeta).then(meta => {
     const message = meta.success ? 'command is successful' : 'command is uneventful';
-    messenger.sendMessage(message);
+
+    chat.api.say(message, { userID, roomID });
   });
 }
 
