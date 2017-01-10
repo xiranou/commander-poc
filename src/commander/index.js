@@ -1,5 +1,10 @@
-function run(permission, commandMeta) {
-  console.log('commander running...');
+const parser = require('../parser');
+
+function run(payload) {
+  const { type: payloadType } = payload;
+  const parsedPayload = parser[payloadType].parse(payload);
+
+  console.log(parsedPayload);
 }
 
 module.exports = {

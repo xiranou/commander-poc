@@ -6,15 +6,12 @@ const auth = require('./src/auth');
 const slackPayload = {
   user: '@UUUU',
   room: '@RRRR',
-  message: '@cns deploy ci'
+  message: '@cns deploy ci',
+  type: 'slack'
 };
 
+const Slack = {
+  sendMessage: message => console.log(`send this message to slack: ${message}`)
+}
 
-const parsed = parsePayload(slackPayload);
-
-auth.fetchUserPermission(parsed.userID)
-.then(permission => {
-  commander.run(parsed.command, permission)
-  .then(successMessage => chat.sendMessage(successMessage))
-  .catch(error => chat.logError(error));
-});
+commander.run(slackPayload);
