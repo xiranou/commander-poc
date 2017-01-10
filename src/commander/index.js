@@ -1,7 +1,8 @@
 const co = require('co');
-const parser = require('../parser');
-const auth = require('../auth');
-const chat = require('../chat');
+
+const parser = require('../modules/parser');
+const auth = require('../modules/auth');
+const chat = require('../modules/chat');
 
 function run(payload) {
   return co(function* _run() {
@@ -11,7 +12,7 @@ function run(payload) {
 
     chat.api.say('fetching user permission...', chatContext);
 
-    const permission = yield auth.fetchUserPermissionByID(parsedPayload.userID);
+    const permission = yield auth.fetchUserPermissionByID(parsedPayload.get('userID'));
     const runMeta = parsedPayload.merge(permission);
 
     chat.api.say('command in progress...', chatContext);
