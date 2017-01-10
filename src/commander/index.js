@@ -1,7 +1,13 @@
 function run(permission, commandMeta) {
-  console.log('commander running...');
+  console.log('run command...');
+}
+
+function processSlackPayload(slackPayload) {
+  console.log('process payload from Slack');
+  console.log(slackPayload);
 }
 
 module.exports = {
-  run
+  run,
+  processSlackPayload
 };

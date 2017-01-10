@@ -2,9 +2,8 @@ const events = require('./src/events');
 const commander = require('./src/commander');
 const auth = require('./src/auth');
 
+events.on('incoming-slack-message', commander.processSlackPayload);
 events.on('deploy', commander.run);
-events.on('deploy', () => console.log('I\'m also subscribe to deploy!'));
-events.on('deploy', () => console.log('me three'), () => console.log('me four'));
 
 const slackPayload = {
   user: '@UUUU',
