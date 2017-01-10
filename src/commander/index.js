@@ -5,14 +5,21 @@ const chat = require('../chat');
 function run(payload) {
   const { type: payloadType } = payload;
   const parsedPayload = parser[payloadType].parse(payload);
-  const { userID, roomID } = parsedPayload.toJS();
-  const permission = auth.fetchUserPermissionByID(parsedPayload.userID);
-  const runMeta = parsedPayload.merge(permission);
+  const chatContext = { userID, roomID } = parsedPayload.toJS();
 
-  commandHandler(runMeta).then(meta => {
+  chat.api.say('fetching user permission...', chatContext);
+
+  auth.fetchUserPermissionByID(parsedPayload.userID).then(permission => {
+    const runMeta = parsedPayload.merge(permission);
+
+    chat.api.say('command in progress...', chatContext);
+
+    return commandHandler(runMeta);
+  })
+  .then(meta => {
     const message = meta.success ? 'command is successful' : 'command is uneventful';
 
-    chat.api.say(message, { userID, roomID });
+    chat.api.say(message, chatContext);
   });
 }
 
