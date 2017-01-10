@@ -1,32 +1,20 @@
-const events = require('./src/events');
-const commander = require('./src/commander');
-const auth = require('./src/auth');
+const setupCommander = require('./src/commander');
 
-events.on('incoming-slack-message', commander.processSlackPayload);
-events.on('deploy', commander.run);
-
-const slackPayload = {
-  user: '@UUUU',
-  room: '@RRRR',
-  message: '@cns deploy ci'
+const Chat = require('./src/modules/chat');
+const Parser = require('./src/modules/parser');
+const Auth = require('./src/modules/auth');
+const Modules = {
+  Auth,
+  Chat,
+  Parser
 };
 
-// from monitor
-events.emit('incoming-slack-message', slackPayload);
-///////////////////
-/// context gap ///
-//////////////////
-events.emit('deploy', {
-  permission: {
-    userID: '@UUUU',
-    group: ['atp'],
-    type: ['power-user']
-  },
-  command: {
-    action: 'deploy',
-    brand: 'atp',
-    environment: 'ci'
-  }
-});
+const slackPayload = {
+  userID: '@UUUU',
+  roomID: '@RRRR',
+  message: '@cns deploy ci',
+  type: 'slack'
+};
 
-events.emit('mookie', { name: 'mookie' });
+const commander = setupCommander(Modules);
+commander.recieveNewPayload(slackPayload);
