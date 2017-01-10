@@ -1,9 +1,12 @@
+const Immutable = require('immutable');
+
 function fetchUserPermissionByID(userID) {
-  return {
+  // fetch from Database
+  return Immutable.Map({
     userID,
     group: ['atp'],
     type: ['power-user']
-  };
+  });
 }
 
 module.exports = {

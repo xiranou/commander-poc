@@ -14,4 +14,4 @@ const Slack = {
   sendMessage: message => console.log(`send this message to slack: ${message}`)
 }
 
-commander.run(slackPayload);
+commander.run(slackPayload, Slack);
