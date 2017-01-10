@@ -1,21 +1,50 @@
 const Immutable = require('immutable');
 
-function parseSlackPayload(payload) {
-  const { user: userID, room: roomID, message } = payload;
+module.exports = class Parser {
+  constructor(props) {
+    this.events = props.events;
+    this.parse = this.parse.bind(this);
+    this.parseSlackPayload = this.parseSlackPayload.bind(this);
+    this.parsers = {
+      slack: this.parseSlackPayload
+    };
 
-  return Immutable.fromJS({
-    userID,
-    roomID,
-    meta: {
-      type: 'deploy',
-      brand: 'atp',
-      environment: 'ci'
-    }
-  });
-};
+    this._subscriptions = [
+      { eventName: 'new-payload-recieved', callback: this.parse }
+    ];
+  }
 
-module.exports = {
-  slack: {
-    parse: parseSlackPayload
+  get subscriptions() {
+    return this._subscriptions;
+  }
+
+  parseSlackPayload(payload) {
+    const { userID, roomID, message, type } = payload;
+
+    const meta = Immutable.fromJS({
+      type,
+      userID,
+      roomID,
+      meta: {
+        command: {
+          type: 'deploy',
+          brand: 'atp',
+          environment: 'ci'
+        }
+      }
+    }).toJS();
+
+    this.events.emit('paylaod-parsed', meta);
+  }
+
+  parse(payload) {
+    const { type, userID, roomID } = payload;
+    this.events.emit('send-message', {
+      userID,
+      roomID,
+      message: 'parse new message'
+    });
+    const parser = this.parsers[type];
+    return parser ? parser(payload) : null;
   }
 }

@@ -1,35 +1,47 @@
-const co = require('co');
+const Immutable = require('immutable');
+const Optional = require('optional-js');
 
-const parser = require('../modules/parser');
-const auth = require('../modules/auth');
-const chat = require('../modules/chat');
+const events = require('../modules/events');
+const handlers = require('./handlers');
+
+function setup(modules) {
+  Immutable.fromJS(modules).map(Mod => {
+    const module  = new Mod({ events });
+    Optional.ofNullable(module.subscriptions)
+    .map(subscriptions => subscriptions.map(sub => {
+      const { eventName, callback } = sub;
+      events.on(eventName, callback);
+    }));
+  });
+
+  events.on('permission-fetched', run);
+
+  return {
+    recieveNewPayload
+  }
+}
+
+function recieveNewPayload(payload) {
+  events.emit('new-payload-recieved', payload);
+}
 
 function run(payload) {
-  return co(function* _run() {
-    const { type: payloadType } = payload;
-    const parsedPayload = parser[payloadType].parse(payload);
-    const chatContext = { userID, roomID } = parsedPayload.toJS();
-
-    chat.api.say('fetching user permission...', chatContext);
-
-    const permission = yield auth.fetchUserPermissionByID(parsedPayload.get('userID'));
-    const runMeta = parsedPayload.merge(permission);
-
-    chat.api.say('command in progress...', chatContext);
-
-    const meta = yield commandHandler(runMeta);
-    const message = meta.success ? 'command is successful' : 'command is uneventful';
-
-    chat.api.say(message, chatContext);
+  const { userID, roomID } = payload;
+  events.emit('send-message', {
+    userID,
+    roomID,
+    message: 'run the command with payload'
+  });
+  Optional.ofNullable(handlers[payload.type])
+  .map(handler => {
+    handler(payload).then(commandStatus => {
+      events.emit('send-message', {
+        userID,
+        roomID,
+        message: 'command is processed'
+      });
+    });
   });
 }
 
-function commandHandler(runMeta) {
-  return Promise.resolve({
-    success: true
-  });
-}
-
-module.exports = {
-  run
-};
+module.exports = setup;

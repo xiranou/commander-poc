@@ -1,17 +1,35 @@
 const Immutable = require('immutable');
 
-function fetchUserPermissionByID(userID) {
-  // fetch from Database
-  return new Promise(resolve => {
-    const permission = Immutable.Map({
-      userID,
-      group: ['atp'],
-      type: ['power-user']
-    });
-    setTimeout(() => resolve(permission), 500);
-  });
-}
+module.exports = class Auth {
+  constructor(props) {
+    this.events = props.events;
+    this.fetchUserPermissionByID = this.fetchUserPermissionByID.bind(this);
 
-module.exports = {
-  fetchUserPermissionByID
-};
+    this._subscriptions = [
+      { eventName: 'paylaod-parsed', callback: this.fetchUserPermissionByID }
+    ];
+  }
+
+  get subscriptions() {
+    return this._subscriptions;
+  }
+
+  fetchUserPermissionByID(payload) {
+    const { userID, roomID } = payload;
+    this.events.emit('send-message', {
+      userID,
+      roomID,
+      message: 'fetch user permission'
+    });
+    // fetch from Database
+    setTimeout(() => {
+      const permission = Immutable.Map({
+        group: ['atp'],
+        type: ['power-user']
+      });
+      const newPayload = Immutable.Map(payload).set('permission', permission).toJS();
+
+      this.events.emit('permission-fetched', newPayload);
+    }, 500);
+  }
+}
