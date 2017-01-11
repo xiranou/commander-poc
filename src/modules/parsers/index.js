@@ -6,7 +6,7 @@ function parseSlackPayload(payload) {
   return Immutable.fromJS({
     userID,
     roomID,
-    meta: {
+    command: {
       type: 'deploy',
       brand: 'atp',
       environment: 'ci'
