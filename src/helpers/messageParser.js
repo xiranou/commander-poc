@@ -1,0 +1,5 @@
+function parseMessage(message) {
+  return {
+
+  }
+}

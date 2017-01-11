@@ -1,20 +1,18 @@
-const setupCommander = require('./src/commander');
+const Immutable = require('immutable');
+const reducer = require('./src/redux/reducer');
+const createStore = require('./src/redux/create');
+const connect = require('./src/redux/connect');
+const Modules = require('./src/modules');
+const Automator = require('./src/modules/Automator');
+const monitor = require('./src/helpers/monitor');
 
-const Chat = require('./src/modules/chat');
-const Parser = require('./src/modules/parser');
-const Auth = require('./src/modules/auth');
-const Modules = {
-  Auth,
-  Chat,
-  Parser
-};
+const store = createStore(reducer);
 
-const slackPayload = {
-  userID: '@UUUU',
-  roomID: '@RRRR',
-  message: '@cns deploy ci',
-  type: 'slack'
-};
+const automator = new Automator(store.dispatch, Immutable.fromJS(store.getState()), Modules);
+const unsubscribeFromStore = connect(store, automator.willRecieveState);
 
-const commander = setupCommander(Modules);
-commander.recieveNewPayload(slackPayload);
+monitor.addSubscriber({
+  ready: automator.ready,
+  callback: automator.actions.recieveNewPayload
+});
+monitor.start();
