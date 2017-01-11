@@ -8,8 +8,7 @@ function parseSlackPayload(payload) {
     roomID,
     command: {
       type: 'deploy',
-      brand: 'atp',
-      environment: 'ci'
+      params: ['atp', 'ci']
     }
   });
 };

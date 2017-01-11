@@ -2,10 +2,11 @@ const co = require('co');
 
 module.exports = class Commander {
   constructor(props) {
-    this.auth = props.auth;
-    this.parsers = props.parsers;
-    this.chat = props.chat;
-    this.handlers = props.handlers;
+    const { auth, parsers, chat, handlers } = props;
+    this.auth = auth;
+    this.parsers = parsers;
+    this.chat = chat;
+    this.handlers = handlers;
 
     this.run = this.run.bind(this);
   }
@@ -31,8 +32,8 @@ module.exports = class Commander {
   }
 
   getParsedPayload(payload) {
-    const { type: payloadType } = payload;
-    return this.parsers[payloadType].parse(payload);
+    const { type } = payload;
+    return this.parsers[type].parse(payload);
   }
 
   getChatter(parsedPayload) {
