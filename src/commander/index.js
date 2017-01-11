@@ -1,33 +1,57 @@
 const co = require('co');
 
-const parsers = require('../modules/parsers');
-const auth = require('../modules/auth');
-const chat = require('../modules/chat');
+module.exports = class Commander {
+  constructor(props) {
+    this.auth = props.auth;
+    this.parsers = props.parsers;
+    this.chat = props.chat;
+    this.handlers = props.handlers;
 
-const handlers = require('./handlers');
+    this.run = this.run.bind(this);
+  }
 
-function run(payload) {
-  return co(function* () {
-    const { type: payloadType } = payload;
-    const parsedPayload = parsers[payloadType].parse(payload);
-    const commandType = parsedPayload.getIn(['command', 'type']);
-    const handler = handlers[commandType];
-    const chatContext = { userID, roomID } = parsedPayload.toJS();
+  run(payload) {
+    return co(() => this._run(payload));
+  }
 
-    chat.api.say('fetching user permission...', chatContext);
+  *_run(payload) {
+    const parsedPayload = this.getParsedPayload(payload);
+    const chatter = this.getChatter(parsedPayload);
 
-    const permission = yield auth.fetchUserPermissionByID(parsedPayload.get('userID'));
-    const commandMeta = parsedPayload.merge(permission);
+    chatter('fetching user permission...');
 
-    chat.api.say('command in progress...', chatContext);
+    const commandMeta = yield this.fetchAndMergePermission(parsedPayload);
 
-    const meta = yield handler(commandMeta);
+    chatter('command in progress...');
+
+    const meta = yield this.runHandler(commandMeta);
     const message = meta.success ? 'command is successful' : 'command is uneventful';
 
-    chat.api.say(message, chatContext);
-  });
-}
+    chatter(message);
+  }
 
-module.exports = {
-  run
-};
+  getParsedPayload(payload) {
+    const { type: payloadType } = payload;
+    return this.parsers[payloadType].parse(payload);
+  }
+
+  getChatter(parsedPayload) {
+    const chatContext = {
+      userID: parsedPayload.get('userID'),
+      roomID: parsedPayload.get('roomID')
+    };
+
+    return this.chat.say.bind(null, chatContext);
+  }
+
+  *fetchAndMergePermission(parsedPayload) {
+    const permission = yield this.auth.fetchUserPermissionByID(parsedPayload.get('userID'));
+    return parsedPayload.merge(permission);
+  }
+
+  *runHandler(commandMeta) {
+    const commandType = commandMeta.getIn(['command', 'type']);
+    const handler = this.handlers[commandType];
+    return yield handler(commandMeta)
+  }
+}
