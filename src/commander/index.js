@@ -18,16 +18,16 @@ module.exports = class Commander {
     const parsedPayload = this.getParsedPayload(payload);
     const chatter = this.getChatter(parsedPayload);
 
-    chatter('fetching user permission...');
+    chatter({ message: 'fetching user permission...' });
 
     const commandMeta = yield this.fetchAndMergePermission(parsedPayload);
 
-    chatter('command in progress...');
+    chatter({ message: 'command in progress...' });
 
     const meta = yield this.runHandler(commandMeta);
-    const message = meta.success ? 'command is successful' : 'command is uneventful';
+    const message = meta.success ? 'command is successful' : 'command failed';
 
-    chatter(message);
+    chatter({ message });
   }
 
   getParsedPayload(payload) {
@@ -36,12 +36,10 @@ module.exports = class Commander {
   }
 
   getChatter(parsedPayload) {
-    const chatContext = {
-      userID: parsedPayload.get('userID'),
-      roomID: parsedPayload.get('roomID')
-    };
+    const userID = parsedPayload.get('userID');
+    const roomID = parsedPayload.get('roomID');
 
-    return this.chat.say.bind(null, chatContext);
+    return this.chat.say.bind(null, userID, roomID);
   }
 
   *fetchAndMergePermission(parsedPayload) {

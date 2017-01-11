@@ -3,8 +3,8 @@ const Slack = {
   sendMessage: (message, roomID) => console.log(`sending this message to slack room -> ${roomID}: [${message}]`)
 }
 
-function say(context = {}, message) {
-  const { userID, roomID } = context;
+function say(userID, roomID, context = {}) {
+  const { message } = context;
   const messageToSend = `Hey, ${userID} -> ${message}`;
 
   Slack.sendMessage(messageToSend, roomID);
