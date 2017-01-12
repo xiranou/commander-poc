@@ -1,7 +1,9 @@
-function validate(brand, ref) {
-  return Promise.resolve(true);
+function validateConfig(brand, ref) {
+  return Promise.resolve({
+    isValid: true
+  });
 }
 
 module.exports = {
-  validate
+  validateConfig
 }

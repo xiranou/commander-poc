@@ -3,12 +3,14 @@ const handlers = require('./src/handlers');
 const parsers = require('./src/modules/parsers');
 const auth = require('./src/modules/auth');
 const chat = require('./src/modules/chat');
+const validator = require('./src/modules/validator');
 
 const commander = new Commander({
   handlers,
   parsers,
   auth,
-  chat
+  chat,
+  validator
 });
 
 const slackPayload = {
