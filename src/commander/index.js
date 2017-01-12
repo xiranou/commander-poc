@@ -17,30 +17,24 @@ module.exports = class Commander {
 
   *_run(payload) {
     const parsedPayload = this.getParsedPayload(payload);
-    const chatter = this.getChatter(parsedPayload);
+    const userID = parsedPayload.get('userID');
+    const roomID = parsedPayload.get('roomID');
 
-    chatter({ message: 'fetching user permission...' });
+    this.chat.say(userID, roomID, { message: 'fetching user permission...' });
 
     const commandMeta = yield this.fetchAndMergePermission(parsedPayload);
 
-    chatter({ message: 'command in progress...' });
+    this.chat.say(userID, roomID, { message: 'command in progress...' });
 
     const meta = yield this.runHandler(commandMeta);
     const message = meta.success ? 'command is successful' : 'command failed';
 
-    chatter({ message });
+    this.chat.say(userID, roomID, { message });
   }
 
   getParsedPayload(payload) {
     const { type } = payload;
     return this.parsers[type].parse(payload);
-  }
-
-  getChatter(parsedPayload) {
-    const userID = parsedPayload.get('userID');
-    const roomID = parsedPayload.get('roomID');
-
-    return this.chat.say.bind(null, userID, roomID);
   }
 
   *fetchAndMergePermission(parsedPayload) {
