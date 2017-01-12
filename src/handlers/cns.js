@@ -1,7 +1,16 @@
+const co = require('co');
+const validator = require('../modules/validator');
+
 function deploy(commandMeta) {
-  return Promise.resolve({
-    success: true,
-    commandMeta
+  const [brand, env] = commandMeta.getIn(['command', 'params']).toJS();
+
+  return co(function* () {
+    const isValid = yield validator.validate(brand, env);
+
+    return Promise.resolve({
+      success: isValid,
+      commandMeta
+    });
   });
 }
 
