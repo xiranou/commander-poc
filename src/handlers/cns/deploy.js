@@ -1,6 +1,4 @@
-const validator = require('../modules/validator');
-
-function* deploy(parsedPayload, api = {}) {
+function* run(parsedPayload, api = {}) {
   const { auth, validator, chat } = api;
   const userID = parsedPayload.get('userID');
   const roomID = parsedPayload.get('roomID');
@@ -49,5 +47,5 @@ function cnsDeploy(commandMeta) {
 }
 
 module.exports = {
-  deploy
+  run
 };
