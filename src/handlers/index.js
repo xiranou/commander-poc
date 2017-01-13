@@ -1,5 +1,7 @@
 const deploy = require('./cns/deploy');
 
-module.exports = {
-  deploy: deploy.run
-};
+const handlers = {
+  [deploy.commandName]: deploy.run
+}
+
+module.exports = handlers;

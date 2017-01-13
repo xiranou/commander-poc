@@ -47,5 +47,6 @@ function cnsDeploy(commandMeta) {
 }
 
 module.exports = {
+  commandName: 'deploy',
   run
 };
