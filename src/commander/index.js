@@ -12,6 +12,16 @@ module.exports = class Commander {
     this.run = this.run.bind(this);
   }
 
+  get api() {
+    const { auth, validator, chat } = this;
+
+    return {
+      auth,
+      validator,
+      chat
+    };
+  }
+
   run(payload) {
     return co(() => this._run(payload));
   }
@@ -35,10 +45,6 @@ module.exports = class Commander {
   *runHandler(parsedPayload) {
     const commandType = parsedPayload.getIn(['command', 'type']);
     const handler = this.handlers[commandType];
-    return yield handler(parsedPayload, {
-      auth: this.auth,
-      validator: this.validator,
-      chat: this.chat
-    });
+    return yield handler(parsedPayload, this.api);
   }
 }
