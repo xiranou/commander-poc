@@ -23,19 +23,20 @@ module.exports = class Commander {
   }
 
   run(payload) {
-    return co(() => this._run(payload));
+    function* _run(payload) {
+      const parsedPayload = this.getParsedPayload(payload);
+      const userID = parsedPayload.get('userID');
+      const roomID = parsedPayload.get('roomID');
+
+      const meta = yield this.runHandler(parsedPayload);
+      const message = meta.success ? 'command prcoess successfully finished' : 'command process halted and failed';
+
+      this.chat.say(userID, roomID, { message });
+    }
+
+    return co(_run.call(this, payload));
   }
 
-  *_run(payload) {
-    const parsedPayload = this.getParsedPayload(payload);
-    const userID = parsedPayload.get('userID');
-    const roomID = parsedPayload.get('roomID');
-
-    const meta = yield this.runHandler(parsedPayload);
-    const message = meta.success ? 'command prcoess successfully finished' : 'command process halted and failed';
-
-    this.chat.say(userID, roomID, { message });
-  }
 
   getParsedPayload(payload) {
     const { type } = payload;
